@@ -1,0 +1,207 @@
+// Written by: Apolinario, Arapoc, and Bautista | March 17, 2024
+// This program is a simple implementation of a stack data structure using a linked list.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure for a node in the linked list
+struct Node {
+    char data[100];          // Data stored in the node
+    struct Node* next;      // Pointer to the next node
+};
+
+// Function to add an item to the start of the list
+void addToStart(struct Node** head, char item[]) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));   // Allocate memory for a new node
+    if (newNode == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+    strcpy(newNode->data, item);                                         // Set the data of the new node
+    newNode->next = *head;                                              // Set the next pointer of the new node to the current head
+    *head = newNode;                                                    // Update the head to point to the new node
+}
+
+// Function to add an item to the end of the list
+void addToEnd(struct Node** head, char item[]) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));   // Allocate memory for a new node
+    if (newNode == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+    strcpy(newNode->data, item);                                        // Set the data of the new node
+    newNode->next = NULL;                                               // Set the next pointer of the new node to NULL
+
+    if (*head == NULL) {                                                // If the list is empty
+        *head = newNode;                                                // Set the head to point to the new node
+        return;
+    }
+
+    struct Node* temp = *head;                                          // Temporary pointer to traverse the list
+    while (temp->next != NULL) {                                        // Find the last node in the list
+        temp = temp->next;
+    }
+    temp->next = newNode;                                               // Set the next pointer of the last node to the new node
+}
+
+// Function to add an item at a specific position in the list
+void addToPosition(struct Node** head, char item[], int position) {
+    if (position <= 0) {                                                // If the position is less than or equal to 0, add to the start of the list
+        addToStart(head, item);
+        return;
+    }
+
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));   // Allocate memory for a new node
+    if (newNode == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+    strcpy(newNode->data, item);                                         // Set the data of the new node
+
+    struct Node* temp = *head;                                          // Temporary pointer to traverse the list
+    int count = 1;                                                      // Counter for the current position
+    while (temp != NULL && count < position) {                          // Find the node at the specified position
+        temp = temp->next;
+        count++;
+    }
+
+    if (temp == NULL) {                                                 // If the position is greater than the length of the list, add to the end
+        addToEnd(head, item);
+        return;
+    }
+
+    newNode->next = temp->next;                                         // Set the next pointer of the new node to the next node of the current position
+    temp->next = newNode;                                               // Set the next pointer of the current position to the new node
+}
+
+// Function to delete an item from the list
+void deleteItem(struct Node** head, char item[]) {
+    if (*head == NULL) {                                                // If the list is empty
+        printf("\nThe list is empty\n");
+        return;
+    }
+
+    struct Node* temp = *head;                                          // Temporary pointer to traverse the list
+    struct Node* prev = NULL;                                           // Pointer to the previous node
+
+    if (strcmp(temp->data, item) == 0) {                                           // If the item is found at the head
+        *head = temp->next;                                             // Update the head to point to the next node
+        free(temp);                                                     // Free the memory of the current node
+        printf("The element %s, which is at position 1, has been deleted\n", item);
+        return;
+    }
+
+    while (temp != NULL && strcmp(temp->data, item) != 0) {              // Find the node with the specified item
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {                                                 // If the item is not found in the list
+        printf("\nThe list does not contain element %s\n", item);
+        return;
+    }
+
+    prev->next = temp->next;                                            // Set the next pointer of the previous node to the next node of the current position
+    free(temp);                                                         // Free the memory of the current node
+    printf("\nThe element %s has been deleted\n", item);
+}
+
+// Function to display the list
+void displayList(struct Node* head) {
+    if (head == NULL) {
+        printf("\nThe list is empty\n");
+        return;
+    }
+    struct Node* temp = head;                                           // Temporary pointer to traverse the list
+    int position = 1;                                                   // Counter for the current position
+	
+	printf("\nThe list:\n");
+	
+    while (temp != NULL) {                                              // Traverse the list and print the data and position of each node
+		printf("%s - %d\n", temp->data, position);
+        temp = temp->next;
+        position++;
+    }
+}
+
+// Function to delete the entire list
+void deleteList(struct Node** head) {
+    struct Node* current = *head;                                       // Current node being deleted
+    struct Node* next;
+
+    while (current != NULL) {                                           // Traverse the list and free the memory of each node
+        next = current->next;
+        free(current);
+        current = next;
+    }
+
+    *head = NULL;                                                       // Set the head to NULL to indicate an empty list
+    printf("\nThe list has been emptied!\n");
+}
+
+int main() {
+    struct Node* head = NULL;                                           // Head pointer of the linked list
+    int choice, position;
+    char item[100];
+
+    do {
+        printf("\n[1] Add Item\n");
+        printf("[2] Delete Item\n");
+        printf("[3] Display List\n");
+        printf("[4] Delete List\n");
+        printf("[0] Exit Program\n");
+        printf("\nEnter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("\nPlease enter the item to be added: ");
+                scanf("%s", item);
+                printf("\nWhere to add the item?\n");
+                printf("[1] Start of the list\n");
+                printf("[2] End of the list\n");
+                printf("[3] Specific position\n");
+                printf("[0] Cancel\n");
+                printf("\nEnter choice:");
+                scanf("%d", &position);
+
+                switch (position) {
+                    case 1:
+                        addToStart(&head, item);
+                        break;
+                    case 2:
+                        addToEnd(&head, item);
+                        break;
+                    case 3:
+                        printf("\nPlease enter the position where to add the item: ");
+                        scanf("%d", &position);
+                        addToPosition(&head, item, position);
+                        break;
+                    default:
+                        printf("Invalid choice\n");
+                        break;
+                }
+                break;
+            case 2:
+                printf("\nPlease enter the item to be deleted: ");
+                scanf("%s", item);
+                deleteItem(&head, item);
+                break;
+            case 3:
+                displayList(head);
+                break;
+            case 4:
+                deleteList(&head);
+                break;
+            case 0:
+                printf("Exiting program...\n");
+                break;
+            default:
+                printf("Invalid choice\n");
+                break;
+        }
+    } while (choice != 0);
+
+    return 0;
+}
